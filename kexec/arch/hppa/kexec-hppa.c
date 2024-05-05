@@ -146,3 +146,8 @@ unsigned long virt_to_phys(unsigned long addr)
 {
 	return addr - phys_offset;
 }
+
+int arch_do_exclude_segment(struct kexec_segment *UNUSED(seg_ptr), struct kexec_info *UNUSED(info))
+{
+	return 0;
+}

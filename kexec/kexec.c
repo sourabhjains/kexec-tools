@@ -701,10 +701,13 @@ static void update_purgatory(struct kexec_info *info)
 			continue;
 		}
 
-		/* Don't include elfcorehdr in the checksum, if hotplug
-		 * support enabled.
+		/*
+		 * Let architecture decide which segments to exclude from checksum
+		 * if hotplug support is enabled.
 		 */
-		if (do_hotplug && (info->segment[i].mem == (void *)info->elfcorehdr)) {
+		if (do_hotplug && arch_do_exclude_segment(&info->segment[i], info)) {
+			dbgprintf("Skipping segment mem: 0x%lx from SHA calculation\n",
+				  (unsigned long)info->segment[i].mem);
 			continue;
 		}
 
@@ -1651,7 +1654,6 @@ int main(int argc, char *argv[])
 		die("--load-live-update can only be used with xen\n");
 	}
 
-	/* NOTE: Xen KEXEC_LIVE_UPDATE and KEXEC_UPDATE_ELFCOREHDR collide */
 	if (do_hotplug) {
 		const char *ces = "/sys/kernel/crash_elfcorehdr_size";
 		char *buf, *endptr = NULL;
@@ -1665,8 +1667,8 @@ int main(int argc, char *argv[])
 		if (!elfcorehdrsz || (endptr && *endptr != '\0'))
 			die("Path %s does not exist, the kernel needs CONFIG_CRASH_HOTPLUG\n", ces);
 		dbgprintf("ELFCOREHDR_SIZE %lu\n", elfcorehdrsz);
-		/* Indicate to the kernel it is ok to modify the elfcorehdr */
-		kexec_flags |= KEXEC_UPDATE_ELFCOREHDR;
+		/* Indicate to the kernel it is ok to modify the relevant kexec segments */
+		kexec_flags |= KEXEC_CRASH_HOTPLUG_SUPPORT;
 	}
 
 	fileind = optind;

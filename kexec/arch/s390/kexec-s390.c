@@ -267,3 +267,8 @@ int get_crash_kernel_load_range(uint64_t *start, uint64_t *end)
 {
 	return parse_iomem_single("Crash kernel\n", start, end);
 }
+
+int arch_do_exclude_segment(struct kexec_segment *UNUSED(seg_ptr), struct kexec_info *UNUSED(info))
+{
+	return 0;
+}

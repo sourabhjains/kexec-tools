@@ -245,3 +245,7 @@ void arch_update_purgatory(struct kexec_info *UNUSED(info))
 {
 }
 
+int arch_do_exclude_segment(struct kexec_segment *UNUSED(seg_ptr), struct kexec_info *UNUSED(info))
+{
+	return 0;
+}
