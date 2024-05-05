@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <stdint.h>
 #include <string.h>
+#include <libfdt.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -968,7 +969,13 @@ void arch_update_purgatory(struct kexec_info *UNUSED(info))
 {
 }
 
-int arch_do_exclude_segment(struct kexec_segment *UNUSED(seg_ptr), struct kexec_info *UNUSED(info))
+int arch_do_exclude_segment(struct kexec_segment *seg_ptr, struct kexec_info *info)
 {
+	if (info->elfcorehdr == (unsigned long) seg_ptr->mem)
+		return 1;
+
+	if (seg_ptr->buf && fdt_magic(seg_ptr->buf) == FDT_MAGIC)
+		return 1;
+
 	return 0;
 }
